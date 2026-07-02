@@ -87,6 +87,7 @@ def post():
     cfg,dat=load(); stages=cfg["stages"]; st=load_state(); st.setdefault("posts",{}); n=0
     for p in dat.get("products",[]):
         chat=p.get("tg")
+        if p.get("id")=="demo-lamp" or (p.get("name","").lower().find("пример")>=0): print("  %s: пример — пропуск"%p["name"]); continue
         if not chat: print("  %s: нет tg — пропуск"%p["name"]); continue
         items=active(p,stages)
         if not items: print("  %s: активных нет"%p["name"]); continue
@@ -117,7 +118,13 @@ def poll():
         try: _,pid,sid=data.split(":"); sid=int(sid)
         except: continue
         p=next((x for x in dat.get("products",[]) if x["id"]==pid),None)
-        if not p: api("answerCallbackQuery",{"callback_query_id":cq["id"],"text":"нет новинки"}); continue
+        if not p:
+            api("answerCallbackQuery",{"callback_query_id":cq["id"],"text":"Этот ланч удалён"})
+            try:
+                mm=cq["message"]
+                api("editMessageText",{"chat_id":mm["chat"]["id"],"message_id":mm["message_id"],"text":"\u26a0\ufe0f Этот ланч удалён/устарел. Актуальный — в закрепе.","reply_markup":{"inline_keyboard":[]}})
+            except Exception: pass
+            continue
         ov=p.setdefault("ov",{}); ov.setdefault(str(sid),{})["status"]="done"; ov[str(sid)]["done"]=today().isoformat()
         sch=sched(p,stages); nxt=sorted([s for s in stages if sch[s["id"]]["status"]=="pending"],key=lambda s:sch[s["id"]]["start"])
         if nxt: p["ov"].setdefault(str(nxt[0]["id"]),{})["status"]="in_progress"
