@@ -83,9 +83,19 @@ def list_text(p,items,stages):
     L.append(""); L.append("Нажми кнопку, когда задача выполнена 👇")
     return "\n".join(L)
 
+def _dedup(ps):
+    best={}
+    for p in ps:
+        c=p.get("tg")
+        if not c: continue
+        ov=p.get("ov",{}) or {}
+        sc=sum(1 for v in ov.values() if v.get("status")=="done")
+        if c not in best or sc>best[c][0]: best[c]=(sc,p)
+    return [v[1] for v in best.values()]
+
 def post():
     cfg,dat=load(); stages=cfg["stages"]; st=load_state(); st.setdefault("posts",{}); n=0
-    for p in dat.get("products",[]):
+    for p in _dedup(dat.get("products",[])):
         chat=p.get("tg")
         if p.get("id")=="demo-lamp" or (p.get("name","").lower().find("пример")>=0): print("  %s: пример — пропуск"%p["name"]); continue
         if not chat: print("  %s: нет tg — пропуск"%p["name"]); continue

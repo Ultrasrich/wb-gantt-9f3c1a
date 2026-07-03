@@ -210,7 +210,7 @@ function milesChips(p){return Object.entries(MILESTONES).map(function(kv){const 
 
 async function boot(){try{const r=await fetch(DATA_URL+"?t="+Date.now(),{cache:"no-store"});const d=await r.json();PRODUCTS=(d&&d.products?d.products:[]).filter(p=>p&&p.id!=="demo-lamp");}catch(e){PRODUCTS=[];}route();}
 function route(){const pid=qp("p");document.getElementById("app").innerHTML=pid?renderLaunch(pById(pid),pid):renderOverview();}
-async function persist(){try{const r=await fetch(SAVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({products:PRODUCTS})});const j=await r.json();showToast(j&&j.ok?"Сохранено ✓":"⚠ не сохранилось",!!(j&&j.ok));}catch(e){showToast("⚠ не сохранилось",false);}}
+async function persist(){try{const r=await fetch(SAVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"replace",products:PRODUCTS})});const j=await r.json();showToast(j&&j.ok?"Сохранено ✓":"⚠ не сохранилось",!!(j&&j.ok));}catch(e){showToast("⚠ не сохранилось",false);}}
 
 function renderOverview(){
   let h='<div class="top"><div><h1>🇨🇳 Гант Китай новинка (Беспалько)</h1><div class="sub">Кабинет Беспалько · активные ланчи · источник — сервер</div></div><button class="btn" onclick="openAdd()">➕ Новый ланч</button></div>';
