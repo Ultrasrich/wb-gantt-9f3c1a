@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Этапы шаблона — Партнерский Гант</title>
+<style>
+  :root{
+    --bg:#f5f6f8;--card:#ffffff;--soft:#f0f2f5;--line:#e5e7eb;--txt:#1a1d24;--mut:#6b7280;--acc:#2563eb;
+    --done:#059669;--prog:#2563eb;--pend:#cbd5e1;--over:#dc2626;--soon:#d97706;
+    --gA:#2563eb;--gB:#7c3aed;--gC:#059669;--gD:#d97706;--gE:#0891b2;--gF:#e11d48;--gG:#6b7280;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:1280px;margin:0 auto;padding:20px}
+  .top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}
+  h1{font-size:24px;margin:0;letter-spacing:-.3px}
+  .sub{color:var(--mut);font-size:12.5px}
+  .btn{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .btn:hover{filter:brightness(1.05)}
+  .btn.ghost{background:#fff;color:var(--txt);border:1px solid var(--line);font-weight:500}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0}
+  select,input{background:#fff;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .mon{border-left:4px solid var(--soon)}
+  .mon h3{margin:0 0 8px;font-size:14px}
+  .mon .it{font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}
+  .mon .it:last-child{border:0}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;margin-right:6px}
+  .t-over{background:#fde8e8;color:var(--over)} .t-soon{background:#fef3e2;color:var(--soon)} .t-start{background:#e7f0ff;color:var(--acc)}
+  /* product card */
+  .prod{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden}
+  .phead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;flex-wrap:wrap}
+  .phead:hover{background:var(--soft)}
+  .pname{font-size:17px;font-weight:700;margin:0}
+  .pmeta{color:var(--mut);font-size:12px;margin-top:2px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .chip{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:11.5px;color:var(--mut)}
+  .chip b{color:var(--txt)}
+  .pbody{display:none;padding:0 16px 16px}
+  .prod.open .pbody{display:block}
+  .caret{transition:transform .15s;color:var(--mut)}
+  .prod.open .caret{transform:rotate(90deg)}
+  .sectitle{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:14px 0 6px}
+  /* chart */
+  .chartwrap{border:1px solid var(--line);border-radius:10px;overflow:auto;background:#fff}
+  .axis{display:flex;position:sticky;top:0;z-index:4;background:var(--soft);border-bottom:1px solid var(--line);height:22px}
+  .clabel{position:sticky;left:0;z-index:2;background:#fff;border-right:1px solid var(--line);width:260px;min-width:260px;padding:3px 8px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+  .axis .clabel{background:var(--soft);font-weight:700;color:var(--mut)}
+  .crow{display:flex;align-items:stretch;border-bottom:1px solid #f1f3f5;height:24px}
+  .crow:hover{background:var(--soft)}
+  .ctrack{position:relative;flex:1}
+  .cbar{position:absolute;top:4px;height:16px;border-radius:4px;font-size:10px;color:#fff;padding:0 5px;line-height:16px;white-space:nowrap;overflow:hidden}
+  .b-done{background:var(--done)} .b-prog{background:var(--prog)} .b-pend{background:#94a3b8}
+  .cbar.over{box-shadow:0 0 0 2px var(--over)}
+  .tick{position:absolute;top:0;height:1000px;border-left:1px solid #eef0f2;font-size:10px;color:var(--mut);padding-left:3px}
+  .todayline{position:absolute;top:0;height:1000px;border-left:2px solid var(--over);z-index:3}
+  .gdot{width:8px;height:8px;border-radius:2px;flex:0 0 auto}
+  /* progress */
+  .prog-wrap{display:flex;align-items:center;gap:12px;margin:14px 0}
+  .prog-bar{flex:1;height:10px;background:var(--soft);border-radius:8px;overflow:hidden}
+  .prog-bar>i{display:block;height:100%;background:var(--done);transition:width .2s}
+  .prog-pct{font-weight:700;font-size:16px;min-width:46px}
+  .phase-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .phase{font-size:11px;color:var(--mut)}
+  .phase i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
+  /* task table */
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+  th,td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:middle}
+  th{color:var(--mut);font-size:10.5px;text-transform:uppercase;letter-spacing:.4px}
+  td.n{color:var(--mut);font-weight:700;width:28px}
+  .st-sel{padding:4px 6px;border-radius:7px;font-size:12px;font-weight:600}
+  .st-pending{background:#f1f5f9;color:#64748b} .st-prog{background:#e7f0ff;color:var(--acc)} .st-done{background:#e6f6ee;color:var(--done)}
+  .mini{width:54px;text-align:center;padding:4px}
+  .resp-in{width:140px}
+  .nm{min-width:240px}
+  .note{color:var(--mut);font-size:11px}
+  .ph-grp td{background:var(--soft);font-weight:700}
+  .del{border:1px solid var(--line);background:#fff;color:var(--over);border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(15,18,24,.45);display:none;align-items:flex-start;justify-content:center;z-index:60;overflow:auto}
+  .modal.open{display:flex}
+  .mbox{background:#fff;border-radius:14px;padding:22px;margin-top:54px;width:480px;max-width:94vw;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+  .mbox h3{margin:0 0 14px}
+  .mbox label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+  .mbox input,.mbox select{width:100%}
+  textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;font:12px monospace;min-height:200px}
+  .empty{color:var(--mut);text-align:center;padding:30px}
+</style><style>
+.etbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.etbl th,.etbl td{border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:middle}
+.etbl th{color:var(--mut);font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;text-align:left}
+.etbl input,.etbl select{padding:5px 6px;border:1px solid var(--line);border-radius:7px;font-size:12.5px;width:100%}
+.etbl .num{width:56px} .etbl .ord{width:34px;text-align:center;color:var(--mut)}
+.mvbtn{border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;padding:2px 6px;font-size:12px;line-height:1}
+.delbtn{border:1px solid var(--line);background:#fff;color:var(--over);border-radius:7px;padding:4px 8px;cursor:pointer;font-size:12px}
+.nmw{min-width:240px} .now{min-width:160px}
+</style>
+</head><body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="backlink" style="font-size:12px"><a href="./" style="color:var(--acc);text-decoration:none">← К ланчам</a></div>
+      <h1>✏️ Этапы шаблона — Партнерский Гант</h1>
+      <div class="sub">Меняй порядок (↑↓), названия, группы, ответственных, старт/длительность. Применяется ко всем новым и текущим ланчам этого проекта.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost" onclick="addStage()">➕ Добавить этап</button>
+      <button class="btn" onclick="save()">💾 Сохранить</button>
+    </div>
+  </div>
+  <div class="panel"><div id="tbl" class="empty">Загрузка…</div></div>
+  <div class="sub" style="margin-top:8px">Модель офсетная: «Старт,д» — смещение в днях от дня 0 ланча, «Дней» — длительность. Порядок в списке влияет на отображение внутри группы; позиция на таймлайне задаётся полем «Старт,д».</div>
+</div>
+<script>
+let CFG=null;
+function esc(s){return(""+(s==null?"":s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function toast(m,ok){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;right:18px;bottom:18px;z-index:200;padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.18)";document.body.appendChild(t);}t.style.background=ok?"#e6f6ee":"#fde8e8";t.style.color=ok?"#059669":"#dc2626";t.textContent=m;t.style.opacity="1";clearTimeout(window._t);window._t=setTimeout(()=>{t.style.transition="opacity .4s";t.style.opacity="0";},2400);}
+async function load(){try{const r=await fetch("data/gantt_config.json?t="+Date.now(),{cache:"no-store"});CFG=await r.json();}catch(e){CFG=null;}
+  if(!CFG){document.getElementById("tbl").innerHTML='<div class="empty">Не удалось загрузить шаблон.</div>';return;}
+  CFG.stages=CFG.stages||[];CFG.roles=CFG.roles||[];CFG.groups=CFG.groups||{A:"A",B:"B",C:"C",D:"D",E:"E",F:"F",G:"G"};CFG.milestones=CFG.milestones||{};
+  render();}
+function gOpts(sel){return Object.keys(CFG.groups).map(g=>'<option value="'+g+'"'+(g===sel?" selected":"")+'>'+g+" — "+esc(CFG.groups[g])+"</option>").join("");}
+function render(){
+  const roles='<datalist id="roles">'+CFG.roles.map(r=>'<option value="'+esc(r)+'">').join("")+"</datalist>";
+  let h=roles+'<table class="etbl"><thead><tr><th>#</th><th>Порядок</th><th>Группа</th><th>Этап</th><th>Ответственный</th><th>Старт,д</th><th>Дней</th><th>Заметка</th><th></th></tr></thead><tbody>';
+  CFG.stages.forEach((s,i)=>{
+    h+='<tr>'
+      +'<td class="ord">'+esc(s.id)+'</td>'
+      +'<td style="white-space:nowrap"><button class="mvbtn" onclick="move('+i+',-1)">↑</button> <button class="mvbtn" onclick="move('+i+',1)">↓</button></td>'
+      +'<td><select onchange="upd('+i+',\'grp\',this.value)">'+gOpts(s.grp)+'</select></td>'
+      +'<td class="nmw"><input value="'+esc(s.name)+'" onchange="upd('+i+',\'name\',this.value)"></td>'
+      +'<td><input list="roles" value="'+esc(s.resp)+'" onchange="upd('+i+',\'resp\',this.value)"></td>'
+      +'<td><input class="num" type="number" value="'+(s.start||0)+'" onchange="upd('+i+',\'start\',this.value)"></td>'
+      +'<td><input class="num" type="number" value="'+(s.dur||0)+'" onchange="upd('+i+',\'dur\',this.value)"></td>'
+      +'<td class="now"><input value="'+esc(s.note||"")+'" onchange="upd('+i+',\'note\',this.value)"></td>'
+      +'<td><button class="delbtn" onclick="del('+i+')">✕</button></td>'
+      +'</tr>';
+  });
+  h+="</tbody></table>";
+  document.getElementById("tbl").innerHTML=h;
+}
+function upd(i,f,v){if(!CFG.stages[i])return;if(f==="start"||f==="dur")CFG.stages[i][f]=(+v||0);else CFG.stages[i][f]=v;}
+function move(i,d){const j=i+d;if(j<0||j>=CFG.stages.length)return;const t=CFG.stages[i];CFG.stages[i]=CFG.stages[j];CFG.stages[j]=t;render();}
+function del(i){if(!confirm("Удалить этап «"+(CFG.stages[i]?CFG.stages[i].name:"")+"»?"))return;CFG.stages.splice(i,1);render();}
+function addStage(){const mx=CFG.stages.reduce((m,s)=>Math.max(m,+s.id||0),0);CFG.stages.push({id:mx+1,grp:Object.keys(CFG.groups)[0],name:"Новый этап",resp:(CFG.roles[0]||""),start:0,dur:1,note:""});render();window.scrollTo(0,document.body.scrollHeight);}
+async function save(){try{const r=await fetch("save_config.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(CFG)});const j=await r.json();toast(j&&j.ok?("Сохранено ✓ ("+j.stages+" этапов)"):"⚠ не сохранилось",!!(j&&j.ok));}catch(e){toast("⚠ не сохранилось",false);}}
+load();
+</script>
+</body></html>
