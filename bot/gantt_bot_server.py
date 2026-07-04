@@ -151,3 +151,27 @@ if __name__=="__main__":
     if "--post" in sys.argv: post()
     elif "--poll" in sys.argv: poll()
     else: print("--post | --poll")
+
+
+def refresh_all():
+    cfg,dat=load(); stages=cfg["stages"]; st=load_state(); st.setdefault("posts",{}); ch=False
+    for p in _dedup(dat.get("products",[])):
+        pid=p["id"]; chat=p.get("tg")
+        if not chat: continue
+        items=active(p,stages)
+        txt=list_text(p,items,stages) if items else "✅ <b>%s</b>: все активные задачи закрыты."%p["name"]
+        mk=kb(pid,items) if items else {"inline_keyboard":[]}
+        pi=st["posts"].get(pid)
+        if pi:
+            r=api("editMessageText",{"chat_id":pi["chat"],"message_id":pi["mid"],"text":txt,"parse_mode":"HTML","disable_web_page_preview":True,"reply_markup":mk})
+            if (not r.get("ok")) and ("not found" in str(r.get("error",""))):
+                r2=api("sendMessage",{"chat_id":chat,"text":txt,"parse_mode":"HTML","disable_web_page_preview":True,"reply_markup":mk})
+                if r2.get("ok"): st["posts"][pid]={"chat":chat,"mid":r2["result"]["message_id"]}; ch=True
+        else:
+            r2=api("sendMessage",{"chat_id":chat,"text":txt,"parse_mode":"HTML","disable_web_page_preview":True,"reply_markup":mk})
+            if r2.get("ok"): st["posts"][pid]={"chat":chat,"mid":r2["result"]["message_id"]}; ch=True
+    if ch: save_state(st)
+    print("refresh done")
+
+if "--refresh" in sys.argv:
+    refresh_all()
