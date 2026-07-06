@@ -34,15 +34,21 @@ def api(method, params):
     except urllib.error.HTTPError as e: return {"ok":False,"error":e.read().decode()[:200]}
     except Exception as e: return {"ok":False,"error":str(e)}
 
+def _isdemo(p):
+    return p.get("id")=="demo-lamp" or ("пример" in (p.get("name","") or "").lower())
 def load():
-    return json.load(open(CONFIG,encoding="utf-8")), json.load(open(DATAF,encoding="utf-8"))
+    cfg=json.load(open(CONFIG,encoding="utf-8")); dat=json.load(open(DATAF,encoding="utf-8"))
+    dat["products"]=[p for p in dat.get("products",[]) if not _isdemo(p)]
+    return cfg, dat
 def load_state():
     if os.path.exists(STATEF):
         try: return json.load(open(STATEF,encoding="utf-8"))
         except: pass
     return {"offset":0,"posts":{}}
 def save_state(st): open(STATEF,"w",encoding="utf-8").write(json.dumps(st,ensure_ascii=False,indent=2))
-def save_data(dat): open(DATAF,"w",encoding="utf-8").write(json.dumps(dat,ensure_ascii=False,indent=2))
+def save_data(dat):
+    dat=dict(dat); dat["products"]=[p for p in dat.get("products",[]) if not _isdemo(p)]
+    open(DATAF,"w",encoding="utf-8").write(json.dumps(dat,ensure_ascii=False,indent=2))
 
 def sched(p,stages):
     ov=p.get("ov",{}) or {}; d0=di(p["day0"]); res={}
@@ -87,7 +93,7 @@ def _dedup(ps):
     best={}
     for p in ps:
         c=p.get("tg")
-        if not c: continue
+        if not c or _isdemo(p): continue
         ov=p.get("ov",{}) or {}
         sc=sum(1 for v in ov.values() if v.get("status")=="done")
         if c not in best or sc>best[c][0]: best[c]=(sc,p)
