@@ -26,6 +26,11 @@ def today(): return datetime.date.today()
 def di(s): return datetime.date.fromisoformat(s)
 
 def api(method, params):
+    if method in ("sendMessage","editMessageText"):
+        try:
+            import datetime as _dt
+            open(os.path.join(BASE,"sent.log"),"a",encoding="utf-8").write(_dt.datetime.now().isoformat()+" "+method+" chat="+str(params.get("chat_id"))+" :: "+str(params.get("text",""))[:70].replace(chr(10)," ")+"\n")
+        except Exception: pass
     url="https://api.telegram.org/bot%s/%s"%(TG,method)
     data=json.dumps(params).encode()
     req=urllib.request.Request(url,data=data,headers={"Content-Type":"application/json"},method="POST")
